@@ -17,6 +17,4 @@ public interface Board {
   void set(Piece p, Posn newPos);
 
   CollisionResult moveHero(int drow, int dcol);
-
-  CollisionResult moveEnemies();
 }
