@@ -110,8 +110,6 @@ public class BoardImpl implements Board {
     collisionResults.add(heroCollisionResult);
 
     if (heroCollisionResult.getResults() == CollisionResult.Result.GAME_OVER) {
-      // hero died ⇒ clear the cell immediately
-      //            set(null, heroNewPosition);
       return heroCollisionResult;
     }
     if (heroCollisionResult.getResults() == CollisionResult.Result.NEXT_LEVEL) {
