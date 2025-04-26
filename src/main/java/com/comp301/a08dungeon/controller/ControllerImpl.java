@@ -33,4 +33,14 @@ public class ControllerImpl implements Controller {
     public void startGame() {
         model.startGame();
     }
+
+    @Override
+    public void enableHardMode() {
+        model.setHardMode(true);
+    }
+
+    @Override
+    public void disableHardMode() {
+        model.setHardMode(false);
+    }
 }

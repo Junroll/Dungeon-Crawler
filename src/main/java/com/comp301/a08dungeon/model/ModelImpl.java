@@ -16,6 +16,7 @@ public class ModelImpl implements Model {
   private int currentLevel = 0;
   private CollisionResult moveOutcome;
   private CollisionResult.Result gameStatus;
+  private boolean hardMode = false;
 
   public ModelImpl(int width, int height) {
     this.gameBoard = new BoardImpl(width, height);
@@ -60,6 +61,17 @@ public class ModelImpl implements Model {
   @Override
   public STATUS getStatus() {
     return this.status;
+  }
+
+  @Override
+  public boolean getHardMode() {
+    return this.hardMode;
+  }
+
+  @Override
+  public void setHardMode(boolean mode) {
+    this.hardMode = mode;
+    gameBoard.setHardMode(mode);
   }
 
   @Override

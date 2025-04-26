@@ -14,6 +14,7 @@ public class BoardImpl implements Board {
   private final Random random = new Random();
   private Hero hero;
   private Exit exit;
+  private boolean hardMode = false;
 
   public BoardImpl(int width, int height) {
     if (width <= 0 || height <= 0) {
@@ -75,6 +76,11 @@ public class BoardImpl implements Board {
   @Override
   public void set(Piece p, Posn newPos) {
     this.board[newPos.getRow()][newPos.getCol()] = p;
+  }
+
+  @Override
+  public void setHardMode(boolean mode) {
+    this.hardMode = mode;
   }
 
   @Override
@@ -210,8 +216,18 @@ public class BoardImpl implements Board {
     }
   }
 
-  // Helper to move the enemies to their new positions.
+  //Helper to appropriately move enemies to their new positions based on difficulty
   private void moveEnemies() {
+    if (hardMode) {
+      moveEnemiesTowardHero();
+    }
+    else {
+      moveEnemiesRandomly();
+    }
+  }
+
+  // Helper to move the enemies randomly to their new positions
+  private void moveEnemiesRandomly() {
     for (Piece p : enemiesList) {
       Enemy enemy = (Enemy) p;
       Posn cur = enemy.getPosn();
@@ -264,6 +280,81 @@ public class BoardImpl implements Board {
       }
     }
   }
+
+  private void moveEnemiesTowardHero() {
+    for (Piece p : enemiesList) {
+      Enemy enemy = (Enemy) p;
+      Posn cur = enemy.getPosn();
+      Piece collided = null;
+      boolean moved = false;
+
+      ArrayList<Direction> choices = new ArrayList<>();
+
+      Posn heroPos = hero.getPosn();
+
+      // Prefer vertical moves first if needed
+      if (heroPos.getRow() < cur.getRow()) {
+        choices.add(Direction.UP);
+      } else if (heroPos.getRow() > cur.getRow()) {
+        choices.add(Direction.DOWN);
+      }
+
+      // Then horizontal moves if needed
+      if (heroPos.getCol() < cur.getCol()) {
+        choices.add(Direction.LEFT);
+      } else if (heroPos.getCol() > cur.getCol()) {
+        choices.add(Direction.RIGHT);
+      }
+
+      // Shuffle the choices to add some unpredictability when both options are available
+      Collections.shuffle(choices, random);
+
+      for (Direction dir : choices) {
+        Posn np = getNewPositionForEnemy(cur, dir);
+
+        // bounds check
+        if (np.getRow() < 0 || np.getRow() >= board.length ||
+                np.getCol() < 0 || np.getCol() >= board[0].length) {
+          continue;
+        }
+
+        Piece destinationPiece = get(np);
+
+        // can't move into Wall, Exit, Enemy
+        if (destinationPiece instanceof Wall ||
+                destinationPiece instanceof Exit ||
+                destinationPiece instanceof Enemy) {
+          continue;
+        }
+
+        // Move!
+        collided = destinationPiece;
+        set(null, cur);
+        enemy.setPosn(np);
+        set(enemy, np);
+        moved = true;
+        break;
+      }
+
+      if (!moved) {
+        // trapped, couldn't move
+        collisionResults.add(new CollisionResult(0, CollisionResult.Result.CONTINUE));
+        continue;
+      }
+
+      // Now handle collision result
+      if (collided == null) {
+        collisionResults.add(new CollisionResult(0, CollisionResult.Result.CONTINUE));
+      } else {
+        CollisionResult enemyCollisionResult = enemy.collide(collided);
+        collisionResults.add(enemyCollisionResult);
+        if (enemyCollisionResult.getResults() == CollisionResult.Result.GAME_OVER) {
+          break;
+        }
+      }
+    }
+  }
+
 
   private void populateBoardFields() {
     for (Piece[] pieces : board) {

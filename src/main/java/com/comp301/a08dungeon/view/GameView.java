@@ -69,13 +69,22 @@ public class GameView implements FXComponent {
         rightPanel.setPadding(new Insets(20));
         rightPanel.setAlignment(Pos.TOP_CENTER);
 
-        //Make Labels for Scores
+        //Make Labels for Scores + Difficulty level
         Label highScore = new Label("High Score: " + model.getHighScore());
         Label score = new Label("Current Score: " + model.getCurScore());
+        Label difficulty;
+        if (model.getHardMode()) {
+            difficulty = new Label("Difficulty: Hard");
+        }
+        else {
+            difficulty = new Label("Difficulty: Easy");
+        }
+
         highScore.getStyleClass().add("score-label");
         score.getStyleClass().add("score-label");
-        //VBox to put the scores one on top the other
-        VBox scoreBox = new VBox(highScore,score);
+        difficulty.getStyleClass().add("score-label");
+        //VBox to put the scores one on top the other + difficulty level
+        VBox scoreBox = new VBox(highScore,score,difficulty);
         scoreBox.setSpacing(10);
         scoreBox.setAlignment(Pos.CENTER);
 

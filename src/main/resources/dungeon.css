@@ -42,6 +42,21 @@
     -fx-font-size: 18px;
 }
 
+.hardmode-checkbox {
+    -fx-font-size: 16px;
+    -fx-text-fill: #FFFFFF;
+    -fx-padding: 10px;
+    -fx-border-color: #FFFFFF;
+    -fx-border-radius: 5px;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.hardmode-checkbox:selected {
+    -fx-background-color: #4CAF50; /* Green highlight when selected */
+    -fx-text-fill: black;
+}
+
 /* General tile style */
 .board-tile {
     -fx-alignment: center;

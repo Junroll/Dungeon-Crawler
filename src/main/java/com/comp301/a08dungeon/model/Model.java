@@ -19,6 +19,10 @@ public interface Model extends Subject {
   // Change status from IN_PROGRESS and END_GAME
   STATUS getStatus();
 
+  boolean getHardMode();
+
+  void setHardMode(boolean mode);
+
   void startGame();
 
   void endGame();

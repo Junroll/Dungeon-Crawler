@@ -10,4 +10,8 @@ public interface Controller {
   public void moveRight();
 
   public void startGame();
+
+  public void enableHardMode();
+
+  public void disableHardMode();
 }

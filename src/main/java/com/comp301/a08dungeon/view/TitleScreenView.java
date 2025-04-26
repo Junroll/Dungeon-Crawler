@@ -2,13 +2,11 @@ package com.comp301.a08dungeon.view;
 
 import com.comp301.a08dungeon.controller.Controller;
 import com.comp301.a08dungeon.model.Model;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class TitleScreenView implements FXComponent{
@@ -34,14 +32,25 @@ public class TitleScreenView implements FXComponent{
         Label currentScoreLabel = new Label("Last Score: " + model.getCurScore());
         currentScoreLabel.getStyleClass().add("score-label");
 
+        CheckBox hardModeCheckbox = new CheckBox("Enable Hard Mode");
+        hardModeCheckbox.getStyleClass().add("hardmode-checkbox");
+
         Button startButton = new Button("Start Game");
         startButton.getStyleClass().add("control-button");
-        startButton.setOnAction(e -> playerController.startGame());
+        startButton.setOnAction(e -> {
+            if (hardModeCheckbox.isSelected()) {
+                playerController.enableHardMode();
+            }
+            else {
+                playerController.disableHardMode();
+            }
+            playerController.startGame();
+        });
 
         Label byline = new Label("By Samyak Jain");
         byline.getStyleClass().add("byline");
 
-        root.getChildren().addAll(title, highScoreLabel, currentScoreLabel, startButton, byline);
+        root.getChildren().addAll(title, highScoreLabel, currentScoreLabel, hardModeCheckbox, startButton, byline);
         root.setAlignment(Pos.CENTER);
         root.setSpacing(15);
 

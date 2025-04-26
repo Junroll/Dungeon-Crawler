@@ -16,5 +16,7 @@ public interface Board {
 
   void set(Piece p, Posn newPos);
 
+  void setHardMode(boolean mode);
+
   CollisionResult moveHero(int drow, int dcol);
 }
