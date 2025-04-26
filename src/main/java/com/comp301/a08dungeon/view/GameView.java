@@ -4,12 +4,17 @@ import com.comp301.a08dungeon.controller.Controller;
 import com.comp301.a08dungeon.model.Model;
 import com.comp301.a08dungeon.model.board.Posn;
 import com.comp301.a08dungeon.model.pieces.Piece;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+
+import java.util.Objects;
 
 public class GameView implements FXComponent {
     private final Controller playerController;
@@ -35,18 +40,26 @@ public class GameView implements FXComponent {
         GridPane board = new GridPane();
         board.getStyleClass().add("game-board");
         board.setPadding(new Insets(0));
+        board.setHgap(0);
+        board.setVgap(0);
         root.setCenter(board);
 
         //Adjust column and row constraints so board fills space
+        double tileSize = 100; // Pick a default you like for now, can be dynamic later
+
         for (int i = 0; i < model.getWidth(); i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             colConst.setPercentWidth(100.0 / model.getWidth());
+            colConst.setMinWidth(20);
+            colConst.setPrefWidth(Region.USE_COMPUTED_SIZE);
             board.getColumnConstraints().add(colConst);
         }
 
         for (int i = 0; i < model.getHeight(); i++) {
             RowConstraints rowConst = new RowConstraints();
             rowConst.setPercentHeight(100.0 / model.getHeight());
+            rowConst.setMinHeight(20);
+            rowConst.setPrefHeight(Region.USE_COMPUTED_SIZE);
             board.getRowConstraints().add(rowConst);
         }
 
@@ -113,24 +126,31 @@ public class GameView implements FXComponent {
         //Setting up the board
         for (int row = 0; row < model.getHeight(); row++) {
             for (int col = 0; col < model.getWidth(); col++) {
-                Posn pos = new Posn(row,col);
+                Posn pos = new Posn(row, col);
                 Piece piece = model.get(pos);
 
-                Label cell;
+                StackPane cell;
                 if (piece != null) {
                     //Placeholder Label for now. Change to ImageView Later
-                    cell = new Label(piece.getName().substring(0,1));
-                    cell.getStyleClass().add("tile-" + piece.getName().toLowerCase());
-                } else {
-                    cell = new Label("");
-                    cell.getStyleClass().add("board-tile");
-                }
+                    String path = piece.getResourcePath();
+                    Image image  = new Image(path);
+                    ImageView pieceImage = new ImageView(image);
+                    cell = new StackPane();
 
-                // Adjusting tiles to fit GridPane
-                cell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    pieceImage.fitWidthProperty().bind(board.widthProperty().divide(model.getWidth()));
+                    pieceImage.fitHeightProperty().bind(board.heightProperty().divide(model.getHeight()));
+                    pieceImage.setPreserveRatio(true);
+                    pieceImage.setSmooth(true);
+
+                    cell.getChildren().add(pieceImage);
+                    StackPane.setAlignment(pieceImage, Pos.CENTER); // just in case
+                } else {
+                    Label emptyCell = new Label();
+                    cell = new StackPane(emptyCell);
+                }
                 GridPane.setHgrow(cell, Priority.ALWAYS);
                 GridPane.setVgrow(cell, Priority.ALWAYS);
-
+                cell.getStyleClass().add("board-tile");
                 board.add(cell,col,row);
             }
         }

@@ -4,7 +4,7 @@ public class Treasure extends APiece {
   private int value;
 
   public Treasure() {
-    super("Treasure", "temp path here");
+    super("Treasure", "/images/Treasure.png");
     this.value = 100;
   }
 

@@ -24,15 +24,6 @@ public class AppLauncher extends Application {
       stage.setWidth(width);
       stage.setHeight(height);
 
-//      scene.setOnKeyPressed(event -> {
-//          switch (event.getCode()) {
-//              case UP -> playerController.moveUp();
-//              case DOWN -> playerController.moveDown();
-//              case LEFT -> playerController.moveLeft();
-//              case RIGHT -> playerController.moveRight();
-//          }
-//      });
-
       stage.setScene(scene);
       stage.show();
   }

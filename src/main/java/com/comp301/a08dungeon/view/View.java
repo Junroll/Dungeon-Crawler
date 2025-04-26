@@ -3,6 +3,7 @@ package com.comp301.a08dungeon.view;
 import com.comp301.a08dungeon.controller.Controller;
 import com.comp301.a08dungeon.model.Model;
 import com.comp301.a08dungeon.model.Observer;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -22,6 +23,15 @@ public class View implements FXComponent, Observer {
     this.stage = stage;
     this.scene = new Scene(render());
     this.scene.getStylesheets().add("dungeon.css");
+
+    scene.setOnKeyPressed(event -> {
+      switch (event.getCode()) {
+        case UP, W -> playerController.moveUp();
+        case DOWN, S -> playerController.moveDown();
+        case LEFT, A -> playerController.moveLeft();
+        case RIGHT, D -> playerController.moveRight();
+      }
+    });
   }
 
   public Parent render() {
@@ -31,7 +41,7 @@ public class View implements FXComponent, Observer {
       return new GameView(playerController, model).render();
     } else {
       Pane s = new StackPane();
-      s.getChildren().add(new Label("Hello, World"));
+      s.getChildren().add(new Label("An error occured."));
       return s;
     }
   }
@@ -39,6 +49,7 @@ public class View implements FXComponent, Observer {
   @Override
   public void update() {
     scene.setRoot(render());
+    Platform.runLater(() -> {scene.getRoot().requestFocus();});
   }
   public Scene getScene() {
     return this.scene;
