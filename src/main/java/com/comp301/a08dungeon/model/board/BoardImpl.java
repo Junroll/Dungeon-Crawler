@@ -114,6 +114,8 @@ public class BoardImpl implements Board {
 
     // 5) Move the hero on the board
     if (destinationPiece instanceof Portal) {
+      set(null,heroOldPosition);
+      moveEnemies();
       teleportPieceRandomly(hero);
       collisionResults.add(hero.collide(destinationPiece));
     }
@@ -133,9 +135,9 @@ public class BoardImpl implements Board {
         // hero reached exit ⇒ leave hero on cell until level reload
         return heroCollisionResult;
       }
+      moveEnemies();
     }
     // 7) On CONTINUE (treasure or empty), let enemies move and then aggregate results
-    moveEnemies();
     int totalPoints = 0;
     for (CollisionResult outcome : collisionResults) {
       switch (outcome.getResults()) {
@@ -219,21 +221,11 @@ public class BoardImpl implements Board {
   //Helper to get the new Posn for the enemy in the direction they want to go
   private Posn getNewPositionForEnemy(Posn cur, Direction direction) {
     switch (direction) {
-      case Direction.UP -> {
-        return new Posn(cur.getRow() - 1, cur.getCol());
-      }
-      case Direction.DOWN -> {
-        return new Posn(cur.getRow() + 1, cur.getCol());
-      }
-      case Direction.LEFT -> {
-        return new Posn(cur.getRow(), cur.getCol() - 1);
-      }
-      case Direction.RIGHT -> {
-        return new Posn(cur.getRow(), cur.getCol() + 1);
-      }
-      default -> {
-        return cur;
-      }
+      case Direction.UP -> {return new Posn(cur.getRow() - 1, cur.getCol());}
+      case Direction.DOWN -> {return new Posn(cur.getRow() + 1, cur.getCol());}
+      case Direction.LEFT -> {return new Posn(cur.getRow(), cur.getCol() - 1);}
+      case Direction.RIGHT -> {return new Posn(cur.getRow(), cur.getCol() + 1);}
+      default -> {return cur;}
     }
   }
 
@@ -242,7 +234,15 @@ public class BoardImpl implements Board {
     Posn oldPosn = piece.getPosn();
     Posn newPosn = getValidRandomPosn();
 
-    set(null,oldPosn); //clear old spot
+    if (oldPosn == newPosn) {
+      teleportPieceRandomly(piece);
+      return;
+    }
+
+    if(get(oldPosn) == piece) {
+      set(null,oldPosn);//clear old spot ONLY IF the piece is still there.
+    }
+
     piece.setPosn(newPosn);
     set(piece,newPosn); //put piece at new position
   }
@@ -362,7 +362,7 @@ public class BoardImpl implements Board {
 
         Piece destinationPiece = get(np);
 
-        // can't move into Wall, Exit, Enemy
+        // can't move into Wall, Exit, Enemy, Portal
         if (destinationPiece instanceof Wall
             || destinationPiece instanceof Exit
             || destinationPiece instanceof Enemy
