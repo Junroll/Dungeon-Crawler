@@ -14,4 +14,8 @@ public interface Controller {
   public void enableHardMode();
 
   public void disableHardMode();
+
+  public void enableSecondaryTheme();
+
+  public void disableSecondaryTheme();
 }

@@ -6,11 +6,15 @@ import com.comp301.a08dungeon.model.Model;
 import com.comp301.a08dungeon.model.ModelImpl;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class AppLauncher extends Application {
   @Override
   public void start(Stage stage) {
+      Font.loadFont(getClass().getResource("/fonts/AmaticSC.ttf").toExternalForm(),48);
+
+
       int width = 1000; //pixels
       int height = 750; //pixels
       stage.setTitle("Samyak's Dungeon Crawler");

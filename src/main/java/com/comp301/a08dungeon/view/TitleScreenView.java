@@ -33,7 +33,10 @@ public class TitleScreenView implements FXComponent{
         currentScoreLabel.getStyleClass().add("score-label");
 
         CheckBox hardModeCheckbox = new CheckBox("Enable Hard Mode");
-        hardModeCheckbox.getStyleClass().add("hardmode-checkbox");
+        hardModeCheckbox.getStyleClass().add("checkbox");
+
+        CheckBox secondaryThemeCheckbox = new CheckBox("Enable Among Us Theme");
+        secondaryThemeCheckbox.getStyleClass().add("checkbox");
 
         Button startButton = new Button("Start Game");
         startButton.getStyleClass().add("control-button");
@@ -44,13 +47,20 @@ public class TitleScreenView implements FXComponent{
             else {
                 playerController.disableHardMode();
             }
+            if (secondaryThemeCheckbox.isSelected()) {
+                playerController.enableSecondaryTheme();
+            }
+            else {
+                playerController.disableSecondaryTheme();
+            }
             playerController.startGame();
         });
 
         Label byline = new Label("By Samyak Jain");
         byline.getStyleClass().add("byline");
 
-        root.getChildren().addAll(title, highScoreLabel, currentScoreLabel, hardModeCheckbox, startButton, byline);
+        root.getChildren().addAll(title, highScoreLabel, currentScoreLabel,
+                hardModeCheckbox, secondaryThemeCheckbox, startButton, byline);
         root.setAlignment(Pos.CENTER);
         root.setSpacing(15);
 

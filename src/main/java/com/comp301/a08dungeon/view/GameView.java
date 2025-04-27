@@ -79,12 +79,22 @@ public class GameView implements FXComponent {
         else {
             difficulty = new Label("Difficulty: Easy");
         }
+        Button toggleThemeButton = new Button("Toggle Theme");
+        toggleThemeButton.getStyleClass().add("control-button");
+        toggleThemeButton.setOnAction(e -> {
+            if (model.getSecondaryTheme()) {
+                playerController.disableSecondaryTheme();
+            }
+            else {
+                playerController.enableSecondaryTheme();
+            }
+        });
 
         highScore.getStyleClass().add("score-label");
         score.getStyleClass().add("score-label");
         difficulty.getStyleClass().add("score-label");
         //VBox to put the scores one on top the other + difficulty level
-        VBox scoreBox = new VBox(highScore,score,difficulty);
+        VBox scoreBox = new VBox(highScore,score,difficulty,toggleThemeButton);
         scoreBox.setSpacing(10);
         scoreBox.setAlignment(Pos.CENTER);
 
@@ -140,20 +150,9 @@ public class GameView implements FXComponent {
 
                 StackPane cell;
                 if (piece != null) {
-                    //Placeholder Label for now. Change to ImageView Later
-                    String path = piece.getResourcePath();
-                    Image image  = new Image(path);
-                    ImageView pieceImage = new ImageView(image);
-                    cell = new StackPane();
-
-                    pieceImage.fitWidthProperty().bind(board.widthProperty().divide(model.getWidth()));
-                    pieceImage.fitHeightProperty().bind(board.heightProperty().divide(model.getHeight()));
-                    pieceImage.setPreserveRatio(true);
-                    pieceImage.setSmooth(true);
-
-                    cell.getChildren().add(pieceImage);
-                    StackPane.setAlignment(pieceImage, Pos.CENTER); // just in case
-                } else {
+                    cell = createTile(piece,board);
+                }
+                else {
                     Label emptyCell = new Label();
                     cell = new StackPane(emptyCell);
                 }
@@ -165,5 +164,27 @@ public class GameView implements FXComponent {
         }
 
         return root;
+    }
+    private StackPane createTile(Piece piece,GridPane board) {
+        String path = piece.getResourcePath();
+
+        if (model.getSecondaryTheme()) {
+            int dotIndex = path.lastIndexOf('.');
+            path = path.substring(0, dotIndex) + "1" + path.substring(dotIndex);
+        } //Handling for the Secondary Theme
+
+        Image image  = new Image(path);
+        ImageView pieceImage = new ImageView(image);
+        StackPane cell = new StackPane();
+
+        pieceImage.fitWidthProperty().bind(board.widthProperty().divide(model.getWidth()));
+        pieceImage.fitHeightProperty().bind(board.heightProperty().divide(model.getHeight()));
+        pieceImage.setPreserveRatio(true);
+        pieceImage.setSmooth(true);
+
+        cell.getChildren().add(pieceImage);
+        StackPane.setAlignment(pieceImage, Pos.CENTER); // just in case
+
+        return cell;
     }
 }

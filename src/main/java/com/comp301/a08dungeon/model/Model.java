@@ -23,6 +23,10 @@ public interface Model extends Subject {
 
   void setHardMode(boolean mode);
 
+  boolean getSecondaryTheme();
+
+  void setSecondaryTheme(boolean secondaryTheme);
+
   void startGame();
 
   void endGame();

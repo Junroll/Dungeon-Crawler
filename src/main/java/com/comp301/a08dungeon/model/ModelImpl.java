@@ -17,6 +17,7 @@ public class ModelImpl implements Model {
   private CollisionResult moveOutcome;
   private CollisionResult.Result gameStatus;
   private boolean hardMode = false;
+  private boolean secondaryTheme = false;
 
   public ModelImpl(int width, int height) {
     this.gameBoard = new BoardImpl(width, height);
@@ -75,6 +76,17 @@ public class ModelImpl implements Model {
   }
 
   @Override
+  public boolean getSecondaryTheme() {
+    return this.secondaryTheme;
+  }
+
+  @Override
+  public void setSecondaryTheme(boolean secondaryTheme) {
+    this.secondaryTheme = secondaryTheme;
+    notifyObservers();
+  }
+
+  @Override
   public void startGame() {
     // standard initialization and resetting
     this.status = STATUS.IN_PROGRESS;
@@ -95,6 +107,7 @@ public class ModelImpl implements Model {
     if (currentScore > highScore) {
       this.highScore = currentScore;
     }
+    this.secondaryTheme = false;
     notifyObservers();
   }
 

@@ -43,4 +43,10 @@ public class ControllerImpl implements Controller {
     public void disableHardMode() {
         model.setHardMode(false);
     }
+
+    @Override
+    public void enableSecondaryTheme() {model.setSecondaryTheme(true);}
+
+    @Override
+    public void disableSecondaryTheme() {model.setSecondaryTheme(false);}
 }

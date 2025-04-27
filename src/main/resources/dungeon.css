@@ -42,7 +42,7 @@
     -fx-font-size: 18px;
 }
 
-.hardmode-checkbox {
+.checkbox {
     -fx-font-size: 16px;
     -fx-text-fill: #FFFFFF;
     -fx-padding: 10px;
@@ -52,7 +52,7 @@
     -fx-cursor: hand;
 }
 
-.hardmode-checkbox:selected {
+.checkbox:selected {
     -fx-background-color: #4CAF50; /* Green highlight when selected */
     -fx-text-fill: black;
 }

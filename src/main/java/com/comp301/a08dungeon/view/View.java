@@ -16,6 +16,7 @@ public class View implements FXComponent, Observer {
   private final Model model;
   private final Stage stage;
   private final Scene scene;
+  private String currentStylesheet;
 
   public View(Controller playerController, Model model, Stage stage) {
     this.playerController = playerController;
@@ -49,8 +50,16 @@ public class View implements FXComponent, Observer {
   @Override
   public void update() {
     scene.setRoot(render());
+
+    String desiredStylesheet = model.getSecondaryTheme() ? "amongus.css" : "dungeon.css";
+
+    scene.getStylesheets().clear();
+    scene.getStylesheets().add(desiredStylesheet);
+    currentStylesheet = desiredStylesheet;
+
     Platform.runLater(() -> {scene.getRoot().requestFocus();});
   }
+
   public Scene getScene() {
     return this.scene;
   }
