@@ -15,6 +15,10 @@ public interface Controller {
 
   public void disableHardMode();
 
+  public void enablePortalAffectsEnemies();
+
+  public void disablePortalAffectsEnemies();
+
   public void enableSecondaryTheme();
 
   public void disableSecondaryTheme();

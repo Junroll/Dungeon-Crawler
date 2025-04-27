@@ -45,6 +45,14 @@ public class ControllerImpl implements Controller {
     }
 
     @Override
+    public void enablePortalAffectsEnemies() {
+        model.setPortalAffectsEnemies(true);
+    }
+
+    @Override
+    public void disablePortalAffectsEnemies() {model.setPortalAffectsEnemies(false);}
+
+    @Override
     public void enableSecondaryTheme() {model.setSecondaryTheme(true);}
 
     @Override

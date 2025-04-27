@@ -18,6 +18,7 @@ public class ModelImpl implements Model {
   private CollisionResult.Result gameStatus;
   private boolean hardMode = false;
   private boolean secondaryTheme = false;
+  private boolean portalAffectsEnemies = false;
 
   public ModelImpl(int width, int height) {
     this.gameBoard = new BoardImpl(width, height);
@@ -87,6 +88,18 @@ public class ModelImpl implements Model {
   }
 
   @Override
+  public boolean getPortalAffectsEnemies() {
+    return this.portalAffectsEnemies;
+  }
+
+  @Override
+  public void setPortalAffectsEnemies(boolean mode) {
+    this.portalAffectsEnemies = mode;
+    gameBoard.setPortalAffectsEnemies(mode);
+    notifyObservers();
+  }
+
+  @Override
   public void startGame() {
     // standard initialization and resetting
     this.status = STATUS.IN_PROGRESS;
@@ -94,7 +107,7 @@ public class ModelImpl implements Model {
     this.currentLevel = 1;
 
     try {
-      gameBoard.init(currentLevel + 1, 2, 2);
+      gameBoard.init(currentLevel + 1, 2, 2,1);
     } catch (IllegalArgumentException e) {
       endGame();
     }
@@ -108,6 +121,8 @@ public class ModelImpl implements Model {
       this.highScore = currentScore;
     }
     this.secondaryTheme = false;
+    this.portalAffectsEnemies = false;
+    gameBoard.setPortalAffectsEnemies(false);
     notifyObservers();
   }
 
@@ -122,7 +137,7 @@ public class ModelImpl implements Model {
     } else if (gameStatus.equals(CollisionResult.Result.NEXT_LEVEL)) {
       this.currentLevel += 1;
       try {
-        gameBoard.init(currentLevel + 1, 2, 2);
+        gameBoard.init(currentLevel + 1, 2, 2,1);
       } catch (IllegalArgumentException e) {
         endGame();
       }
@@ -141,7 +156,7 @@ public class ModelImpl implements Model {
     } else if (gameStatus.equals(CollisionResult.Result.NEXT_LEVEL)) {
       this.currentLevel += 1;
       try {
-        gameBoard.init(currentLevel + 1, 2, 2);
+        gameBoard.init(currentLevel + 1, 2, 2,1);
       } catch (IllegalArgumentException e) {
         endGame();
       }
@@ -160,7 +175,7 @@ public class ModelImpl implements Model {
     } else if (gameStatus.equals(CollisionResult.Result.NEXT_LEVEL)) {
       this.currentLevel += 1;
       try {
-        gameBoard.init(currentLevel + 1, 2, 2);
+        gameBoard.init(currentLevel + 1, 2, 2,1);
       } catch (IllegalArgumentException e) {
         endGame();
       }
@@ -179,7 +194,7 @@ public class ModelImpl implements Model {
     } else if (gameStatus.equals(CollisionResult.Result.NEXT_LEVEL)) {
       this.currentLevel += 1;
       try {
-        gameBoard.init(currentLevel + 1, 2, 2);
+        gameBoard.init(currentLevel + 1, 2, 2,1);
       } catch (IllegalArgumentException e) {
         endGame();
       }

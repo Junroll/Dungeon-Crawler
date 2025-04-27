@@ -4,7 +4,6 @@ import com.comp301.a08dungeon.controller.Controller;
 import com.comp301.a08dungeon.model.Model;
 import com.comp301.a08dungeon.model.board.Posn;
 import com.comp301.a08dungeon.model.pieces.Piece;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -13,8 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-
-import java.util.Objects;
+import javafx.scene.text.TextAlignment;
 
 public class GameView implements FXComponent {
     private final Controller playerController;
@@ -63,40 +61,59 @@ public class GameView implements FXComponent {
             board.getRowConstraints().add(rowConst);
         }
 
-        //Make right VBox to hold scores and controls HAVEN'T ADDED TO ROOT
+        //Make right VBox to hold scores,rules, toggles, and controls HAVEN'T ADDED TO ROOT
         VBox rightPanel = new VBox();
         rightPanel.setSpacing(20);
         rightPanel.setPadding(new Insets(20));
         rightPanel.setAlignment(Pos.TOP_CENTER);
 
-        //Make Labels for Scores + Difficulty level
+        //Make Labels for Scores, Difficulty level, and Portal rule, and Portal Explanation
         Label highScore = new Label("High Score: " + model.getHighScore());
         Label score = new Label("Current Score: " + model.getCurScore());
+
         Label difficulty;
-        if (model.getHardMode()) {
-            difficulty = new Label("Difficulty: Hard");
-        }
-        else {
-            difficulty = new Label("Difficulty: Easy");
-        }
+        if (model.getHardMode()) {difficulty = new Label("Difficulty: Hard");}
+        else {difficulty = new Label("Difficulty: Easy");}
+
+
+        Label portalExplanation = new Label(
+                "Portals randomly teleport the Hero to an empty tile. Watch your step!");
+        portalExplanation.setWrapText(true);
+        portalExplanation.setStyle("-fx-font-size: 18px; -fx-text-alignment: center;");
+        portalExplanation.setMaxWidth(250);
+
+        Label portalRule;
+        if (model.getPortalAffectsEnemies()) {portalRule = new Label("Enemies can use Portals");}
+        else {portalRule = new Label("Enemies cannot use Portals");}
+
+        //Make button toggle for portal rules
+        Button togglePortalUseButton = new Button("Toggle Portal Rules");
+        togglePortalUseButton.getStyleClass().add("control-button");
+        togglePortalUseButton.setOnAction(e -> {
+            if (model.getPortalAffectsEnemies()) {playerController.disablePortalAffectsEnemies();}
+            else {playerController.enablePortalAffectsEnemies();}
+        });
+
+        //Make button toggle for changing theme
         Button toggleThemeButton = new Button("Toggle Theme");
         toggleThemeButton.getStyleClass().add("control-button");
         toggleThemeButton.setOnAction(e -> {
-            if (model.getSecondaryTheme()) {
-                playerController.disableSecondaryTheme();
-            }
-            else {
-                playerController.enableSecondaryTheme();
-            }
+            if (model.getSecondaryTheme()) {playerController.disableSecondaryTheme();}
+            else {playerController.enableSecondaryTheme();}
         });
 
+        //Add styling to the labels
         highScore.getStyleClass().add("score-label");
         score.getStyleClass().add("score-label");
         difficulty.getStyleClass().add("score-label");
+        portalExplanation.getStyleClass().add("score-label");
+        portalRule.getStyleClass().add("score-label");
+
         //VBox to put the scores one on top the other + difficulty level
-        VBox scoreBox = new VBox(highScore,score,difficulty,toggleThemeButton);
-        scoreBox.setSpacing(10);
-        scoreBox.setAlignment(Pos.CENTER);
+        VBox infoBox = new VBox(highScore,score,difficulty,portalExplanation,
+                portalRule,togglePortalUseButton,toggleThemeButton);
+        infoBox.setSpacing(15);
+        infoBox.setAlignment(Pos.CENTER);
 
         //Make GridPane for Control Buttons
         GridPane controls = new GridPane();
@@ -137,7 +154,7 @@ public class GameView implements FXComponent {
         controls.setAlignment(Pos.BOTTOM_CENTER);
 
         //Add everything to right panel
-        rightPanel.getChildren().addAll(scoreBox, new Region() /*Spacer*/,controls);
+        rightPanel.getChildren().addAll(infoBox, new Region() /*Spacer*/,controls);
         VBox.setVgrow(rightPanel.getChildren().get(1),Priority.ALWAYS); //Setting Spacer to get vertical grow priority
         //Add rightPanel to the root's right section
         root.setRight(rightPanel);
@@ -153,8 +170,7 @@ public class GameView implements FXComponent {
                     cell = createTile(piece,board);
                 }
                 else {
-                    Label emptyCell = new Label();
-                    cell = new StackPane(emptyCell);
+                    cell = new StackPane();
                 }
                 GridPane.setHgrow(cell, Priority.ALWAYS);
                 GridPane.setVgrow(cell, Priority.ALWAYS);
@@ -162,9 +178,9 @@ public class GameView implements FXComponent {
                 board.add(cell,col,row);
             }
         }
-
         return root;
     }
+
     private StackPane createTile(Piece piece,GridPane board) {
         String path = piece.getResourcePath();
 

@@ -27,6 +27,10 @@ public interface Model extends Subject {
 
   void setSecondaryTheme(boolean secondaryTheme);
 
+  boolean getPortalAffectsEnemies();
+
+  void setPortalAffectsEnemies(boolean mode);
+
   void startGame();
 
   void endGame();

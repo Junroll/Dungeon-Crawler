@@ -13,6 +13,8 @@ public class Hero extends APiece implements MovablePiece {
         return new CollisionResult(0, CollisionResult.Result.GAME_OVER);
       } else if (other.getName().equals("Exit")) {
         return new CollisionResult(0, CollisionResult.Result.NEXT_LEVEL);
+      } else if (other.getName().equals("Portal")) {
+        return new CollisionResult(0, CollisionResult.Result.CONTINUE);
       } else {
         throw new IllegalArgumentException("Unknown Piece");
       }

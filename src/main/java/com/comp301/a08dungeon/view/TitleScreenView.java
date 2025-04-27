@@ -41,26 +41,20 @@ public class TitleScreenView implements FXComponent{
         Button startButton = new Button("Start Game");
         startButton.getStyleClass().add("control-button");
         startButton.setOnAction(e -> {
-            if (hardModeCheckbox.isSelected()) {
-                playerController.enableHardMode();
-            }
-            else {
-                playerController.disableHardMode();
-            }
-            if (secondaryThemeCheckbox.isSelected()) {
-                playerController.enableSecondaryTheme();
-            }
-            else {
-                playerController.disableSecondaryTheme();
-            }
+            if (hardModeCheckbox.isSelected()) {playerController.enableHardMode();}
+            else {playerController.disableHardMode();}
+
+            if (secondaryThemeCheckbox.isSelected()) {playerController.enableSecondaryTheme();}
+            else {playerController.disableSecondaryTheme();}
+
             playerController.startGame();
         });
 
         Label byline = new Label("By Samyak Jain");
         byline.getStyleClass().add("byline");
 
-        root.getChildren().addAll(title, highScoreLabel, currentScoreLabel,
-                hardModeCheckbox, secondaryThemeCheckbox, startButton, byline);
+        root.getChildren().addAll(title,highScoreLabel,currentScoreLabel,
+                hardModeCheckbox,secondaryThemeCheckbox,startButton,byline);
         root.setAlignment(Pos.CENTER);
         root.setSpacing(15);
 

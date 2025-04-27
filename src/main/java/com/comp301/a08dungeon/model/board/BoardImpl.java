@@ -15,6 +15,7 @@ public class BoardImpl implements Board {
   private Hero hero;
   private Exit exit;
   private boolean hardMode = false;
+  private boolean portalAffectsEnemies = false;
 
   public BoardImpl(int width, int height) {
     if (width <= 0 || height <= 0) {
@@ -39,7 +40,7 @@ public class BoardImpl implements Board {
   }
 
   @Override
-  public void init(int enemies, int treasures, int walls) {
+  public void init(int enemies, int treasures, int walls, int portals) {
     // Clearing the entire board.
     for (int i = 0; i < board.length; i++) {
       for (int j = 0; j < board[0].length; j++) {
@@ -49,13 +50,13 @@ public class BoardImpl implements Board {
     this.enemiesList.clear();
 
     // Check required num spots
-    int requiredSpots = enemies + treasures + walls + 1 + 1;
+    int requiredSpots = enemies + treasures + walls + portals + 1 + 1;
     if (requiredSpots > this.totalSpots) {
       throw new IllegalArgumentException("Not enough spots on the board");
     }
 
     // Initialize pieces
-    initializePieces(enemies, treasures, walls);
+    initializePieces(enemies, treasures, walls, portals);
   }
 
   @Override
@@ -84,6 +85,11 @@ public class BoardImpl implements Board {
   }
 
   @Override
+  public void setPortalAffectsEnemies(boolean mode) {
+    this.portalAffectsEnemies = mode;
+  }
+
+  @Override
   public CollisionResult moveHero(int drow, int dcol) {
     collisionResults.clear(); // Clear previous results each move
 
@@ -103,26 +109,31 @@ public class BoardImpl implements Board {
       return new CollisionResult(0, CollisionResult.Result.CONTINUE);
     }
 
-    // 4) Capture whatever was at the new spot (could be Treasure, Exit, Enemy, or null)
+    // 4) Capture whatever was at the new spot (could be Treasure, Exit, Enemy, Portal or null)
     Piece destinationPiece = get(heroNewPosition);
 
     // 5) Move the hero on the board
-    set(null, heroOldPosition);
-    hero.setPosn(heroNewPosition);
-    set(hero, heroNewPosition);
-
-    // 6) Handle the collision
-    CollisionResult heroCollisionResult = hero.collide(destinationPiece);
-    collisionResults.add(heroCollisionResult);
-
-    if (heroCollisionResult.getResults() == CollisionResult.Result.GAME_OVER) {
-      return heroCollisionResult;
+    if (destinationPiece instanceof Portal) {
+      teleportPieceRandomly(hero);
+      collisionResults.add(hero.collide(destinationPiece));
     }
-    if (heroCollisionResult.getResults() == CollisionResult.Result.NEXT_LEVEL) {
-      // hero reached exit ⇒ leave hero on cell until level reload
-      return heroCollisionResult;
-    }
+    else {
+      set(null, heroOldPosition);
+      hero.setPosn(heroNewPosition);
+      set(hero, heroNewPosition);
 
+      // 6) Handle the collision
+      CollisionResult heroCollisionResult = hero.collide(destinationPiece);
+      collisionResults.add(heroCollisionResult);
+
+      if (heroCollisionResult.getResults() == CollisionResult.Result.GAME_OVER) {
+        return heroCollisionResult;
+      }
+      if (heroCollisionResult.getResults() == CollisionResult.Result.NEXT_LEVEL) {
+        // hero reached exit ⇒ leave hero on cell until level reload
+        return heroCollisionResult;
+      }
+    }
     // 7) On CONTINUE (treasure or empty), let enemies move and then aggregate results
     moveEnemies();
     int totalPoints = 0;
@@ -152,7 +163,7 @@ public class BoardImpl implements Board {
   }
 
   // Helper method to initialize all the pieces
-  public void initializePieces(int enemies, int treasures, int walls) {
+  public void initializePieces(int enemies, int treasures, int walls, int portals) {
     // Creating Enemies
     for (int i = 0; i < enemies; i++) {
       Enemy enemy = new Enemy();
@@ -181,6 +192,15 @@ public class BoardImpl implements Board {
       set(wall, newPosn);
     }
 
+    //Creating Portals
+    for (int i = 0; i < portals; i++) {
+      Piece portal = new Portal();
+      Posn newPosn = getValidRandomPosn();
+      portal.setPosn(newPosn);
+
+      set(portal, newPosn);
+    }
+
     // Creating Hero
     hero = new Hero();
     Posn heroPosn = getValidRandomPosn();
@@ -196,6 +216,7 @@ public class BoardImpl implements Board {
     set(exit, exitPosn);
   }
 
+  //Helper to get the new Posn for the enemy in the direction they want to go
   private Posn getNewPositionForEnemy(Posn cur, Direction direction) {
     switch (direction) {
       case Direction.UP -> {
@@ -214,6 +235,16 @@ public class BoardImpl implements Board {
         return cur;
       }
     }
+  }
+
+  //Helper to teleport piece randomly when a portal is hit
+  private void teleportPieceRandomly(Piece piece) {
+    Posn oldPosn = piece.getPosn();
+    Posn newPosn = getValidRandomPosn();
+
+    set(null,oldPosn); //clear old spot
+    piece.setPosn(newPosn);
+    set(piece,newPosn); //put piece at new position
   }
 
   //Helper to appropriately move enemies to their new positions based on difficulty
@@ -249,17 +280,25 @@ public class BoardImpl implements Board {
         Piece destinationPiece = get(np);
         if (destinationPiece instanceof Wall
             || destinationPiece instanceof Exit
-            || destinationPiece instanceof Enemy) {
+            || destinationPiece instanceof Enemy
+            || (destinationPiece instanceof Portal && !portalAffectsEnemies)) {
           continue;
         }
         // capture what was there for collision
         collided = destinationPiece;
         // clear old, move, set new
-        set(null, cur);
-        enemy.setPosn(np);
-        set(enemy, np);
-        moved = true;
-        break;
+        if (destinationPiece instanceof Portal) {
+          teleportPieceRandomly(enemy);
+          moved = true;
+          break;
+        }
+        else {
+          set(null, cur);
+          enemy.setPosn(np);
+          set(enemy, np);
+          moved = true;
+          break;
+        }
       }
 
       if (!moved) {
@@ -281,6 +320,7 @@ public class BoardImpl implements Board {
     }
   }
 
+  //Helper to move the enemies toward the Hero's position
   private void moveEnemiesTowardHero() {
     for (Piece p : enemiesList) {
       Enemy enemy = (Enemy) p;
@@ -313,27 +353,37 @@ public class BoardImpl implements Board {
         Posn np = getNewPositionForEnemy(cur, dir);
 
         // bounds check
-        if (np.getRow() < 0 || np.getRow() >= board.length ||
-                np.getCol() < 0 || np.getCol() >= board[0].length) {
+        if (np.getRow() < 0
+            || np.getRow() >= board.length
+            || np.getCol() < 0
+            || np.getCol() >= board[0].length) {
           continue;
         }
 
         Piece destinationPiece = get(np);
 
         // can't move into Wall, Exit, Enemy
-        if (destinationPiece instanceof Wall ||
-                destinationPiece instanceof Exit ||
-                destinationPiece instanceof Enemy) {
+        if (destinationPiece instanceof Wall
+            || destinationPiece instanceof Exit
+            || destinationPiece instanceof Enemy
+            ||(destinationPiece instanceof Portal && !portalAffectsEnemies)) {
           continue;
         }
 
         // Move!
         collided = destinationPiece;
-        set(null, cur);
-        enemy.setPosn(np);
-        set(enemy, np);
-        moved = true;
-        break;
+        if (destinationPiece instanceof Portal) {
+          teleportPieceRandomly(enemy);
+          moved = true;
+          break;
+        }
+        else {
+          set(null, cur);
+          enemy.setPosn(np);
+          set(enemy, np);
+          moved = true;
+          break;
+        }
       }
 
       if (!moved) {
@@ -355,7 +405,7 @@ public class BoardImpl implements Board {
     }
   }
 
-
+  //Helper to populate vital instance variables for proper functioning
   private void populateBoardFields() {
     for (Piece[] pieces : board) {
       for (int j = 0; j < board[0].length; j++) {

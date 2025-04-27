@@ -13,7 +13,10 @@ public class Enemy extends APiece implements MovablePiece {
         return new CollisionResult(0, CollisionResult.Result.CONTINUE);
       } else if (other.getName().equals("Hero")) {
         return new CollisionResult(0, CollisionResult.Result.GAME_OVER);
-      } else {
+      } else if (other.getName().equals("Portal")) {
+        return new CollisionResult(0, CollisionResult.Result.CONTINUE);
+      }
+      else {
         throw new IllegalArgumentException("Unknown Piece");
       }
     }
